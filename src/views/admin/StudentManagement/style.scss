@@ -1,0 +1,75 @@
+.student-management {
+  padding: 20px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 60px);
+}
+
+.toolbar-card {
+  margin-bottom: 20px;
+  border: 1px solid #ebeef5;
+}
+
+.enterprise-search-form {
+  :deep(.el-form-item) {
+    margin-bottom: 0;
+  }
+
+  :deep(.el-form-item__label) {
+    font-weight: 500;
+    color: #606266;
+  }
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.w-50 {
+  width: 200px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding: 16px 0;
+}
+
+.enterprise-pagination {
+  :deep(.el-pagination__total) {
+    font-weight: 500;
+  }
+
+  :deep(.el-pagination.is-background .el-pager li) {
+    border-radius: 4px;
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .search-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .w-50 {
+    width: 100% !important;
+  }
+
+  .button-group {
+    justify-content: flex-end;
+  }
+}
