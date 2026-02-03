@@ -38,6 +38,8 @@ const tabs = ref<TabItem[]>([
   { name: "学生管理", url: "/admin/student" },
   { name: "老师管理", url: "/admin/teacher" },
   { name: "统计分析", url: "/admin/statistics" },
+  { name: "预约信息管理", url: "/admin/reservation" },
+  { name: "信用分管理", url: "/admin/score" },
 ]);
 
 // 当前激活菜单（自动跟随路由）

@@ -78,15 +78,6 @@
       </el-table-column>
     </el-table>
 
-    <el-pagination
-      background
-      layout="prev, pager, next, total"
-      :current-page.sync="page"
-      :page-size="pageSize"
-      :total="total"
-      @current-change="fetchData"
-    />
-
     <!-- 分页 -->
     <div class="pagination-container">
       <el-pagination

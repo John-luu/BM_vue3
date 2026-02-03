@@ -1,0 +1,71 @@
+.reservation-container {
+  padding: 16px;
+}
+/* 表头整体 */
+.el-table__header-wrapper {
+  background-color: #f5f7fa;
+}
+
+/* 表头单元格 */
+.el-table__header th {
+  background-color: #f5f7fa !important;
+  color: #303133;
+  font-weight: 600;
+  font-size: 14px;
+  height: 52px;
+  border-bottom: 1px solid #e4e7ed !important;
+}
+/* 表体行 */
+.el-table__body tr {
+  height: 56px;
+  transition: background-color 0.2s ease;
+}
+
+/* hover 高亮 */
+.el-table__body tr:hover > td {
+  background-color: #f0f7ff !important;
+}
+
+/* 当前行 */
+.el-table__body tr.current-row > td {
+  background-color: #ecf5ff !important;
+}
+.el-table td {
+  color: #606266;
+  font-size: 13px;
+}
+
+/* 用户名突出 */
+.username {
+  font-weight: 600;
+  color: #303133;
+}
+
+/* 使用时间 */
+.time-range {
+  font-weight: 500;
+  color: #303133;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-range.active {
+  color: var(--el-color-success);
+  font-weight: 600;
+}
+.table-card {
+  border-radius: 12px;
+  border: 1px solid #ebeef5;
+}
+
+.table-card .el-card__body {
+  padding: 0;
+}
+.el-tag {
+  font-weight: 500;
+  border-radius: 6px;
+}
+.table-pagination {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 8px 0;
+}

@@ -48,6 +48,14 @@ const routes = [
         path: "statistics",
         component: () => import("../views/admin/Statistics/index.vue"),
       },
+      {
+        path: "reservation",
+        component: () => import("../views/admin/ReservationMess/index.vue"),
+      },
+      {
+        path: "score",
+        component: () => import("../views/admin/ScoreManagement/index.vue"),
+      },
     ],
   },
   //   {
