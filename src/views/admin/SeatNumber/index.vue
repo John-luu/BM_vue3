@@ -1,6 +1,6 @@
 <template>
   <div class="root">
-    <el-card style="margin-top: 10%; position: relative">
+    <el-card class="card">
       <!-- header -->
       <template #header>
         <div class="clearfix">
@@ -17,6 +17,7 @@
       <!-- area -->
       <Area
         v-if="currentArea"
+        ref="room"
         class="area-container"
         :seat-rows="seatRows"
         :rows="currentArea.rows"
@@ -40,6 +41,7 @@ import ToggleArea from "@/components/ToggleArea.vue";
 import HeadTip from "@/components/HeadTip.vue";
 import request from "@/req";
 import "./style.scss";
+import { ElMessage } from "element-plus";
 /* -------------------- types -------------------- */
 interface AreaItem {
   aid: number;
@@ -78,13 +80,21 @@ function seatClick(index: number) {
   request
     .post("/public/getSignedNumber", { sid: seat.sid })
     .then((res: any) => {
-      number.value = res.data.number;
+      // 检查返回的R对象中是否有错误码
+      if (res.code === 200) {
+        // 假设200表示成功
+        number.value = res.data.number;
+      } else {
+        // 显示后端返回的错误消息
+        ElMessage.error(res.data.msg || "操作失败");
+        console.error("获取签到码失败:", res.data.msg);
+      }
     });
 }
 
 function onAreaChange(area: AreaItem) {
   currentArea.value = area;
-
+  console.log("area===", area);
   request.post("/public/getAreaSeats", { area: area.aid }).then((res: any) => {
     seatRows.value = res.data.rows ?? [];
   });
@@ -92,12 +102,13 @@ function onAreaChange(area: AreaItem) {
 
 function refreshAreaList() {
   request.get("/public/getArea").then((res: any) => {
-    areaRows.value = res.rows ?? [];
+    areaRows.value = res.data.rows ?? [];
   });
 }
 
 /* -------------------- lifecycle -------------------- */
 onMounted(() => {
   refreshAreaList();
+  console.log("111");
 });
 </script>

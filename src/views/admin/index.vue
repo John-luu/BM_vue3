@@ -45,25 +45,3 @@ const tabs = ref<TabItem[]>([
 // 当前激活菜单（自动跟随路由）
 const activePath = computed(() => route.path);
 </script>
-
-<style>
-.layout {
-  height: 100vh; /* 关键 */
-}
-
-.aside {
-  background-color: #ffffff;
-  border-right: 1px solid #ebeef5;
-}
-
-.menu {
-  height: 100%;
-  border-right: none;
-}
-
-/* 右侧内容 */
-.main {
-  padding: 16px;
-  background-color: #f5f7fa;
-}
-</style>

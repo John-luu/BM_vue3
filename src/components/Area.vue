@@ -1,6 +1,6 @@
 <template>
   <div class="area-wrapper">
-    <!-- 底层空白网格 -->
+    <!-- 底部空白网格 -->
     <div class="room" :style="gridStyle">
       <div
         v-for="(item, index) in blankRows"
@@ -13,14 +13,15 @@
             ✓
           </div>
         </div>
+
         <el-popover
           v-else
-          v-model:show="item.show"
-          :offset="0"
+          v-model:visible="item.show"
           placement="top"
-          theme="dark"
+          trigger="manual"
+          popper-class="dark-popover"
         >
-          <slot name="blankMenu"></slot>
+          <slot name="blankMenu" />
           <template #reference>
             <div
               class="seat"
@@ -41,24 +42,28 @@
       </div>
     </div>
 
-    <!-- 顶层座位 -->
+    <!-- 座位层 -->
     <div class="room overlay" :style="gridStyle">
       <div
         v-for="(item, index) in seatRows"
         :key="index"
         class="item"
-        :style="{ gridRow: item.row, gridColumn: item.column }"
+        :style="{
+          gridRow: item.row,
+          gridColumn: item.column,
+        }"
         @click="seatClick(index)"
       >
         <Seat v-if="!item.show" :item="item" />
+
         <el-popover
           v-else
-          v-model:show="item.show"
-          :offset="0"
+          v-model:visible="item.show"
           placement="top"
-          theme="dark"
+          trigger="manual"
+          popper-class="dark-popover"
         >
-          <slot name="seatMenu"></slot>
+          <slot name="seatMenu" />
           <template #reference>
             <Seat :item="item" />
           </template>
@@ -70,116 +75,104 @@
 
 <script setup lang="ts">
 import {
-  ref,
-  reactive,
-  watch,
   computed,
   onMounted,
   onBeforeUnmount,
+  reactive,
+  ref,
+  watch,
 } from "vue";
 import Seat from "@/components/Seat.vue";
-import { Popover } from "vant";
-// -------------------- Props & Emits --------------------
-interface SeatItem {
-  type: number;
+
+/* ================= props ================= */
+
+interface BatchPosition {
   row: number;
   column: number;
-  show?: boolean;
+}
+
+interface SeatItem {
+  row: number;
+  column: number;
+  show: boolean;
   [key: string]: any;
 }
 
-interface BlankItem {
-  show: boolean;
-}
-
-interface Props {
+const props = defineProps<{
   manageMode?: boolean;
   batchMode?: boolean;
-  seatRows?: SeatItem[];
+  seatRows: SeatItem[];
   rows: number;
   columns: number;
-  batchSelected?: { row: number; column: number }[];
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<{
-  (e: "seatClick", index: number): void;
-  (e: "blankClick", index: number, row: number, column: number): void;
+  batchSelected?: BatchPosition[];
 }>();
 
-// -------------------- Reactive State --------------------
-const blankRows = ref<BlankItem[]>([]);
+const emit = defineEmits<{
+  (e: "seatClick", index: number): void;
+  (e: "blankClick", realIndex: number, row: number, column: number): void;
+}>();
+
+/* ================= state ================= */
+
+const blankRows = reactive<{ show: boolean }[]>([]);
 const lastBlankIndex = ref(-1);
 
-// -------------------- Computed --------------------
-const gridStyle = computed(() => ({
-  gridTemplateRows: `repeat(${props.rows}, 32px)`,
-  gridTemplateColumns: `repeat(${props.columns}, 32px)`,
-}));
+/* ================= utils ================= */
 
-const seatRows = computed(() => props.seatRows ?? []);
-const batchSelected = computed(() => props.batchSelected ?? []);
-
-// -------------------- Methods --------------------
-function initBlankRows() {
-  blankRows.value = Array.from({ length: props.rows * props.columns }, () => ({
-    show: false,
-  }));
-}
-
-function closeLastPop() {
-  blankRows.value.forEach((b) => (b.show = false));
-  seatRows.value.forEach((s) => (s.show = false));
-}
-
-function isSelectedInBatch(index: number): boolean {
-  if (!props.batchMode || !batchSelected.value.length) return false;
-
+const calcRowColumn = (index: number) => {
   const realIndex = index + 1;
-  let row: number, column: number;
+  const column =
+    realIndex % props.columns === 0 ? props.columns : realIndex % props.columns;
+  const row =
+    realIndex % props.columns === 0
+      ? Math.trunc(realIndex / props.columns)
+      : Math.trunc(realIndex / props.columns) + 1;
 
-  if (realIndex % props.columns === 0) {
-    row = Math.trunc(realIndex / props.columns);
-    column = props.columns;
-  } else {
-    row = Math.trunc(realIndex / props.columns) + 1;
-    column = realIndex % props.columns;
-  }
+  return { realIndex, row, column };
+};
 
-  return batchSelected.value.some(
+/* ================= methods ================= */
+
+const isSelectedInBatch = (index: number) => {
+  if (!props.batchMode || !props.batchSelected?.length) return false;
+  const { row, column } = calcRowColumn(index);
+  return props.batchSelected.some(
     (item) => item.row === row && item.column === column,
   );
-}
+};
 
-function getBatchSeatClass(index: number) {
+const getBatchSeatClass = (index: number) => {
   if (!props.batchMode) return "";
   return isSelectedInBatch(index) ? "batch-selected" : "";
-}
+};
 
-function seatClick(index: number) {
+const closeLastPop = () => {
+  blankRows.forEach((i) => (i.show = false));
+  props.seatRows.forEach((i) => (i.show = false));
+};
+defineExpose({
+  closeLastPop,
+});
+
+const seatClick = (index: number) => {
   if (props.batchMode) {
     emit("seatClick", index);
     return;
   }
   closeLastPop();
-  if (seatRows.value[index]) seatRows.value[index].show = true;
-  emit("seatClick", index);
-}
+  const seat = props.seatRows[index];
+  if (!seat) return;
+  seat.show = true;
 
-function blankClick(index: number) {
+  emit("seatClick", index);
+};
+
+const blankClick = (index: number) => {
   if (!props.manageMode) return;
+
   lastBlankIndex.value = index;
 
-  const realIndex = index + 1;
-  let row: number, column: number;
-
-  if (realIndex % props.columns === 0) {
-    row = Math.trunc(realIndex / props.columns);
-    column = props.columns;
-  } else {
-    row = Math.trunc(realIndex / props.columns) + 1;
-    column = realIndex % props.columns;
-  }
+  const { realIndex, row, column } = calcRowColumn(index);
 
   if (props.batchMode) {
     emit("blankClick", realIndex, row, column);
@@ -187,18 +180,30 @@ function blankClick(index: number) {
   }
 
   closeLastPop();
-  if (seatRows.value[index]) seatRows.value[index].show = true;
-  emit("blankClick", realIndex, row, column);
-}
+  const blank = blankRows[index];
+  if (!blank) return;
+  blank.show = true;
 
-function closeOnOutside(ev: MouseEvent) {
+  emit("blankClick", realIndex, row, column);
+};
+
+const initBlankRows = () => {
+  blankRows.length = 0;
+  const total = props.rows * props.columns;
+  for (let i = 0; i < total; i++) {
+    blankRows.push({ show: false });
+  }
+};
+
+const closeOnOutside = (ev: MouseEvent) => {
   const target = ev.target as HTMLElement;
-  if (!target.classList.contains("seat")) {
+  if (!target.className || !target.className.includes("seat")) {
     closeLastPop();
   }
-}
+};
 
-// -------------------- Lifecycle --------------------
+/* ================= lifecycle ================= */
+
 onMounted(() => {
   initBlankRows();
   window.addEventListener("click", closeOnOutside);
@@ -208,10 +213,12 @@ onBeforeUnmount(() => {
   window.removeEventListener("click", closeOnOutside);
 });
 
-// -------------------- Watch --------------------
-watch([() => props.rows, () => props.columns], () => {
-  initBlankRows();
-});
+/* ================= watch ================= */
+
+watch(
+  () => [props.rows, props.columns],
+  () => initBlankRows(),
+);
 
 watch(
   () => props.seatRows,
@@ -222,21 +229,37 @@ watch(
 
 watch(
   () => props.batchSelected,
-  () => {
-    // 强制更新
-  },
+  () => {},
 );
+
+/* ================= computed ================= */
+
+const gridStyle = computed(() => ({
+  gridTemplateRows: `repeat(${props.rows}, 32px)`,
+  gridTemplateColumns: `repeat(${props.columns}, 32px)`,
+}));
 </script>
 
 <style scoped>
+/* 样式完全不动 */
 .area-wrapper {
   position: relative;
   width: max-content;
   height: max-content;
 }
-
 .room {
   display: grid;
+  position: relative;
+
+  /* 单个格子尺寸（和 gridStyle 保持一致） */
+  --cell-size: 32px;
+
+  /* 网格背景 */
+  background-color: #f5f5f5;
+  background-image:
+    linear-gradient(to right, #e0e0e0 1px, transparent 1px),
+    linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
+  background-size: var(--cell-size) var(--cell-size);
 }
 
 .overlay {
@@ -245,35 +268,29 @@ watch(
   left: 0;
   pointer-events: none;
 }
-
 .overlay .item,
 .overlay .seat {
   pointer-events: auto;
 }
-
 .seat {
   width: 100%;
   height: 100%;
-  background-color: #f0f0f0;
+  position: relative;
 }
-
 .batch-selected {
   background-color: #409eff;
   box-sizing: border-box;
 }
-
 .batch-selected-indicator {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
+  color: #fff;
   font-weight: bold;
   font-size: 16px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   z-index: 10;
 }
-
 ::v-deep .seat-component {
   width: 100%;
   height: 100%;

@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 interface SeatItem {
-  type: number; // 0=座位, 1=桌子
+  type?: number; // 0=座位, 1=桌子
   row: number;
   column: number;
   state?: number; // 0=可用,1=不可用,2=占用

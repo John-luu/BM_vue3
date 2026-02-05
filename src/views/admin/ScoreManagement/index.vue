@@ -1,5 +1,53 @@
 <template>
   <div class="score-management">
+    <!-- 搜索区 -->
+    <el-card shadow="never" class="search-card">
+      <el-form :inline="true" :model="filters" class="filter-form">
+        <!-- 用户名 -->
+        <el-form-item label="用户名">
+          <el-input
+            v-model="filters.username"
+            placeholder="请输入用户名"
+            clearable
+          />
+        </el-form-item>
+
+        <!-- 状态 -->
+        <el-form-item label="状态">
+          <el-select v-model="filters.state" placeholder="全部" clearable>
+            <el-option label="预约未签到" :value="2" />
+            <el-option label="暂离超时未回" :value="4" />
+          </el-select>
+        </el-form-item>
+
+        <!-- 预约日期 -->
+        <el-form-item label="预约日期">
+          <el-date-picker
+            v-model="filters.date"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="请选择日期"
+            clearable
+          />
+        </el-form-item>
+
+        <!-- 扣分情况 -->
+        <el-form-item label="扣分情况">
+          <el-select v-model="filters.scoreStatus" placeholder="全部" clearable>
+            <el-option label="待处理" :value="0" />
+            <el-option label="已扣分" :value="1" />
+          </el-select>
+        </el-form-item>
+
+        <!-- 搜索/重置 -->
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- 表格 -->
     <el-card class="table-card" shadow="never">
       <el-table
         :data="rows"
@@ -90,19 +138,16 @@
       />
 
       <!-- 空状态 -->
-      <el-empty
-        v-if="!loading && rows.length === 0"
-        description="暂无待处理的扣分记录"
-      />
+      <el-empty v-if="!loading && rows.length === 0" description="暂无记录" />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import request from "@/req";
-import "./style.scss";
+
 /** 数据类型 */
 interface ScoreItem {
   uid: number;
@@ -120,25 +165,66 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 
+/** 搜索条件 */
+const filters = reactive({
+  username: "",
+  state: null as number | null,
+  date: "" as string | null,
+  scoreStatus: null as number | null, // 0=待处理, 1=已扣分
+});
+
 /** 获取数据 */
 const fetchData = async () => {
   loading.value = true;
-  const res = await request.get("/teacher/getReservationNeedSub", {
-    params: {
+  try {
+    // 将空字符串或 null 转成 null
+    const params = {
       page: currentPage.value,
       pageSize: pageSize.value,
-    },
-  });
+      username: filters.username?.trim() || null,
+      state: filters.state ?? null,
+      date: filters.date?.trim() || null,
+      scoreStatus:
+        filters.scoreStatus !== null && filters.scoreStatus !== undefined
+          ? Number(filters.scoreStatus)
+          : null,
+    };
 
-  rows.value = res.data?.rows || [];
-  total.value = res.data?.total || 0;
-  loading.value = false;
+    const res = await request.get("/teacher/getReservationNeedSub", {
+      params,
+    });
+
+    rows.value = res.data?.rows || [];
+    total.value = res.data?.total || 0;
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
 };
+
+/** 搜索操作 */
+const handleSearch = () => {
+  currentPage.value = 1;
+  fetchData();
+};
+
+/** 重置搜索 */
+const handleReset = () => {
+  filters.username = "";
+  filters.state = null;
+  filters.date = null;
+  filters.scoreStatus = null;
+  currentPage.value = 1;
+  fetchData();
+};
+
+
+/** 分页 */
 const handlePageChange = (page: number) => {
   currentPage.value = page;
   fetchData();
 };
-
 const handleSizeChange = (size: number) => {
   pageSize.value = size;
   currentPage.value = 1;
@@ -179,7 +265,9 @@ const getStateTagType = (state: number): "warning" | "danger" | "info" => {
 /** 时间格式 */
 const formatDateTime = (time: string) => {
   const d = new Date(time);
-  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d
+  return `${d.getFullYear()}-${(d.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")} ${d
     .getHours()
     .toString()
     .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;

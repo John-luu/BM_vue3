@@ -1,47 +1,38 @@
 .score-management {
   padding: 16px;
+  background: #f4f6f9;
+  min-height: 100vh;
+}
+
+.search-card {
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.filter-form .el-form-item {
+  margin-right: 20px;
+  margin-bottom: 8px;
 }
 
 .table-card {
-  border-radius: 8px;
+  padding: 0;
 }
 
-/* 表头 */
-.table-header th {
-  background-color: #f5f7fa !important;
-  color: #303133;
+.table-header {
+  background: #f5f7fa;
   font-weight: 600;
-  font-size: 14px;
-  border-bottom: 1px solid #ebeef5;
 }
-
-/* 表格内容 */
-.el-table td {
-  font-size: 13px;
-  color: #606266;
+.table-pagination {
+  margin: 16px 0;
+  text-align: right;
 }
-
-/* 用户名 */
 .username {
   font-weight: 500;
-  color: #303133;
 }
-
-/* 扣分文本 */
-.score-text {
-  color: #f56c6c;
-  font-weight: 500;
-}
-
-/* 已处理 */
 .done-text {
   color: #909399;
-  font-size: 13px;
 }
-
-/* 分页 */
-.table-pagination {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
+.score-text {
+  font-weight: 500;
+  color: #f56c6c;
 }
