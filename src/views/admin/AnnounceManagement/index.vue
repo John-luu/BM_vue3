@@ -3,11 +3,7 @@
     <!-- 顶部操作栏 -->
     <div class="page-header">
       <div class="title">📢 公告管理</div>
-      <el-button
-        type="primary"
-        icon="el-icon-plus"
-        @click="dialogVisible = true"
-      >
+      <el-button type="primary" icon="el-icon-plus" @click="openDialog">
         新增公告
       </el-button>
     </div>
@@ -38,7 +34,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row, index }">
             <el-button
               type="danger"
@@ -54,7 +50,12 @@
     </el-card>
 
     <!-- 新增公告弹窗 -->
-    <el-dialog title="新增公告" v-model:visible="dialogVisible" width="480px">
+    <el-dialog
+      title="新增公告"
+      v-model="dialogVisible"
+      width="480px"
+      @close="resetForm"
+    >
       <el-form :model="form" label-width="60px">
         <el-form-item label="标题">
           <el-input v-model="form.title" />
@@ -77,6 +78,7 @@
 import { defineComponent, ref, onMounted } from "vue";
 import request from "@/req";
 import "./style.scss";
+import { ElMessage, ElMessageBox } from "element-plus";
 interface AnnounceRow {
   id: number;
   title: string;
@@ -99,6 +101,18 @@ export default defineComponent({
       content: "",
     });
 
+    // 打开弹窗
+    const openDialog = () => {
+      dialogVisible.value = true;
+      console.log("dialogVisible.value===", dialogVisible.value);
+    };
+    // 重置表单
+    const resetForm = () => {
+      form.value = {
+        title: "",
+        content: "",
+      };
+    };
     const loadData = () => {
       request.get("/admin/getAnnounce").then((res: any) => {
         rows.value = res.data.rows;
@@ -106,30 +120,43 @@ export default defineComponent({
     };
 
     const handleDelete = (index: number, row: AnnounceRow) => {
-      (window as any).ElMessageBox.confirm("确认删除该公告吗？", "提示", {
+      ElMessageBox.confirm("确认删除该公告吗？", "提示", {
         type: "warning",
       })
         .then(() => {
           request.post("/admin/deleteAnnounce", { id: row.id }).then(() => {
             rows.value.splice(index, 1);
-            (window as any).ElMessage.success("删除成功");
+            ElMessage.success("删除成功");
+            loadData();
           });
         })
         .catch(() => {});
     };
 
-    const submitAnnounce = () => {
-      if (!form.value.title || !form.value.content) {
-        (window as any).ElMessage.warning("标题和内容不能为空");
+    const submitAnnounce = async () => {
+      // 验证表单
+      if (!form.value.title.trim()) {
+        ElMessage.warning("请输入标题");
         return;
       }
-      request.post("/admin/addAnnounce", form.value).then(() => {
-        (window as any).ElMessage.success("发布成功");
+      if (!form.value.content.trim()) {
+        ElMessage.warning("请输入内容");
+        return;
+      }
+      try {
+        await request.post("/admin/addAnnounce", {
+          title: form.value.title.trim(),
+          content: form.value.content.trim(),
+        });
+
+        ElMessage.success("发布成功");
         dialogVisible.value = false;
-        form.value.title = "";
-        form.value.content = "";
-        loadData();
-      });
+        resetForm(); // 重置表单
+        loadData(); // 重新加载列表
+      } catch (error) {
+        console.error("发布失败:", error);
+        ElMessage.error("发布失败");
+      }
     };
 
     const formatTime = (datetime: string) => {
@@ -148,6 +175,8 @@ export default defineComponent({
 
     return {
       rows,
+      resetForm,
+      openDialog,
       dialogVisible,
       form,
       loadData,

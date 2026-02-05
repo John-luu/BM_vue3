@@ -42,7 +42,7 @@
         </el-table-column>
 
         <!-- 操作 -->
-        <el-table-column label="操作" width="180" align="right">
+        <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row, $index }">
             <el-button
               type="text"

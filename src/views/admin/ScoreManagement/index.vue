@@ -14,7 +14,12 @@
 
         <!-- 状态 -->
         <el-form-item label="状态">
-          <el-select v-model="filters.state" placeholder="全部" clearable>
+          <el-select
+            v-model="filters.state"
+            placeholder="全部"
+            clearable
+            style="width: 180px"
+          >
             <el-option label="预约未签到" :value="2" />
             <el-option label="暂离超时未回" :value="4" />
           </el-select>
@@ -33,7 +38,12 @@
 
         <!-- 扣分情况 -->
         <el-form-item label="扣分情况">
-          <el-select v-model="filters.scoreStatus" placeholder="全部" clearable>
+          <el-select
+            v-model="filters.scoreStatus"
+            placeholder="全部"
+            clearable
+            style="width: 120px"
+          >
             <el-option label="待处理" :value="0" />
             <el-option label="已扣分" :value="1" />
           </el-select>
@@ -61,7 +71,7 @@
         <el-table-column label="序号" type="index" width="70" align="center" />
 
         <!-- 用户 -->
-        <el-table-column label="用户" min-width="160">
+        <el-table-column label="用户" min-width="80" align="center">
           <template #default="{ row }">
             <span class="username">{{ row.username }}</span>
           </template>
@@ -81,14 +91,14 @@
         </el-table-column>
 
         <!-- 预约时间 -->
-        <el-table-column label="预约时间" min-width="190">
+        <el-table-column label="预约时间" min-width="190" align="center">
           <template #default="{ row }">
             {{ formatDateTime(row.startTime) }}
           </template>
         </el-table-column>
 
         <!-- 使用时段 -->
-        <el-table-column label="使用时段" min-width="160">
+        <el-table-column label="使用时段" min-width="160" align="center">
           <template #default="{ row }">
             {{ formatTimeRange(row.startTime, row.endTime) }}
           </template>
@@ -107,7 +117,7 @@
         </el-table-column>
 
         <!-- 操作 -->
-        <el-table-column label="操作" width="140" align="center">
+        <el-table-column label="操作" width="140" align="center" fixed="right">
           <template #default="{ row }">
             <el-button
               v-if="!row.score"
@@ -218,7 +228,6 @@ const handleReset = () => {
   currentPage.value = 1;
   fetchData();
 };
-
 
 /** 分页 */
 const handlePageChange = (page: number) => {
