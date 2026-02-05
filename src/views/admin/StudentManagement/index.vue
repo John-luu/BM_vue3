@@ -50,6 +50,13 @@
               >
                 新增学生
               </el-button>
+              <el-button
+                type="warning"
+                size="default"
+                @click="openImportDialog"
+              >
+                批量导入
+              </el-button>
             </el-space>
           </el-form-item>
         </el-space>
@@ -142,6 +149,7 @@
         </span>
       </template>
     </el-dialog>
+    <StudentImportDialog v-model="importVisible" @success="fetchData" />
   </div>
 </template>
 
@@ -155,6 +163,7 @@ import {
 } from "element-plus";
 import request from "@/req";
 import "./style.scss";
+import StudentImportDialog from "@/components/StudentImportDialog.vue";
 interface StudentRow {
   uid: number;
   number: string;
@@ -181,6 +190,7 @@ const page = ref(1);
 const pageSize = ref(10);
 const addVisible = ref(false);
 const formRef = ref<FormInstance>();
+const importVisible = ref(false);
 
 const search = reactive<SearchForm>({
   number: "",
@@ -192,7 +202,9 @@ const form = reactive<AddForm>({
   username: "",
   password: "",
 });
-
+const openImportDialog = () => {
+  importVisible.value = true;
+};
 // 表单验证规则
 const rules = reactive<FormRules<AddForm>>({
   number: [
