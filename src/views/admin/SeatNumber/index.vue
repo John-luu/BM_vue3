@@ -1,6 +1,6 @@
 <template>
   <div class="root">
-    <el-card class="card">
+    <el-card class="seat-card">
       <!-- header -->
       <template #header>
         <div class="clearfix">
@@ -10,7 +10,7 @@
             @changeArea="onAreaChange"
             @areaCreated="refreshAreaList"
           />
-          <HeadTip />
+          
         </div>
       </template>
 
@@ -22,11 +22,16 @@
         :seat-rows="seatRows"
         :rows="currentArea.rows"
         :columns="currentArea.columns"
+        seat-menu-popper-class="seat-qr-popper"
         @seatClick="seatClick"
       >
         <template #seatMenu>
           <div class="blankMenu">
-            <div>签到码：{{ number }}</div>
+            <div class="qr-title">座位固定二维码</div>
+            <div class="qr-meta">{{ qrLabel }}</div>
+            <img v-if="qrDataUrl" class="qr-image" :src="qrDataUrl" alt="seat-qrcode" />
+            <div v-else class="qr-loading">二维码生成中...</div>
+            <div class="qr-payload">{{ qrPayload }}</div>
           </div>
         </template>
       </Area>
@@ -42,6 +47,7 @@ import HeadTip from "@/components/HeadTip.vue";
 import request from "@/req";
 import "./style.scss";
 import { ElMessage } from "element-plus";
+import QRCode from "qrcode";
 /* -------------------- types -------------------- */
 interface AreaItem {
   aid: number;
@@ -55,7 +61,7 @@ interface SeatItem {
   sid: number;
   type: number;
   state: number;
-  show?: boolean;
+  show: boolean;
   row: number;
   column: number;
 }
@@ -64,39 +70,60 @@ interface SeatItem {
 const areaRows = ref<AreaItem[]>([]);
 const seatRows = ref<SeatItem[]>([]);
 const currentArea = ref<AreaItem | null>(null);
-const number = ref("000000");
+const qrLabel = ref("-");
+const qrPayload = ref("");
+const qrDataUrl = ref("");
 
 /* -------------------- methods -------------------- */
-function seatClick(index: number) {
+async function seatClick(index: number) {
   const seat = seatRows.value[index];
   if (!seat) return;
+  if (!currentArea.value) return;
 
-  // 正在使用的座位无法操作
-  if (seat.state !== 0) {
+  // 仅座位展示二维码，桌子不展示
+  if (seat.type !== 0) {
     seat.show = false;
+    ElMessage.warning("该位置是桌子，不提供二维码");
     return;
   }
 
-  request
-    .post("/public/getSignedNumber", { sid: seat.sid })
-    .then((res: any) => {
-      // 检查返回的R对象中是否有错误码
-      if (res.code === 200) {
-        // 假设200表示成功
-        number.value = res.data.number;
-      } else {
-        // 显示后端返回的错误消息
-        ElMessage.error(res.data.msg || "操作失败");
-        console.error("获取签到码失败:", res.data.msg);
-      }
+  const areaText = [currentArea.value.areaName, currentArea.value.subName]
+    .filter(Boolean)
+    .join(" ");
+  const payload = `SEAT_QR|aid=${currentArea.value.aid}|area=${areaText}|row=${seat.row}|column=${seat.column}|sid=${seat.sid}`;
+
+  qrLabel.value = `${areaText} ${seat.row}排${seat.column}列`;
+  qrPayload.value = payload;
+  qrDataUrl.value = "";
+
+  try {
+    qrDataUrl.value = await QRCode.toDataURL(payload, {
+      width: 220,
+      margin: 1,
+      errorCorrectionLevel: "M",
     });
+  } catch (e) {
+    seat.show = false;
+    ElMessage.error("二维码生成失败");
+  }
 }
 
 function onAreaChange(area: AreaItem) {
   currentArea.value = area;
+  qrLabel.value = "-";
+  qrPayload.value = "";
+  qrDataUrl.value = "";
   console.log("area===", area);
   request.post("/public/getAreaSeats", { area: area.aid }).then((res: any) => {
-    seatRows.value = res.data.rows ?? [];
+    const rows = (res.data.rows ?? []) as Array<Partial<SeatItem>>;
+    seatRows.value = rows.map((item) => ({
+      sid: Number(item.sid || 0),
+      type: Number(item.type || 0),
+      state: Number(item.state || 0),
+      row: Number(item.row || 0),
+      column: Number(item.column || 0),
+      show: Boolean(item.show),
+    }));
   });
 }
 

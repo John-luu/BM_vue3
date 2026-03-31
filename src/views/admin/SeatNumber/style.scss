@@ -3,11 +3,15 @@
   box-sizing: border-box;
 }
 
-::v-deep(.el-card) {
+.root .seat-card {
+  width: 100%;
+}
+
+.root :deep(.el-card) {
   height: 100%;
 }
 
-::v-deep(.el-card__body) {
+.root :deep(.el-card__body) {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -15,4 +19,54 @@
 
 .area-container {
   flex: 1;
+}
+
+.blankMenu {
+  width: 100%;
+  max-width: 280px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.seat-qr-popper {
+  width: 300px !important;
+  max-width: 320px !important;
+  height: auto !important;
+  box-sizing: border-box;
+}
+
+.qr-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.qr-meta {
+  font-size: 12px;
+  color: #606266;
+}
+
+.qr-image {
+  width: 180px;
+  height: 180px;
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.qr-loading {
+  font-size: 12px;
+  color: #909399;
+}
+
+.qr-payload {
+  width: 100%;
+  font-size: 11px;
+  color: #909399;
+  line-height: 1.45;
+  word-break: break-all;
+  white-space: normal;
 }

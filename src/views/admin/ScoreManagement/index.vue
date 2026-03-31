@@ -51,8 +51,8 @@
 
         <!-- 搜索/重置 -->
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" class="btn-search" @click="handleSearch">搜索</el-button>
+          <el-button class="btn-reset" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -122,9 +122,10 @@
             <el-button
               v-if="!row.score"
               type="danger"
+              class="btn-delete"
               size="small"
               plain
-              @click="subScore(row)"
+              @click="openScoreDialog(row)"
             >
               扣分
             </el-button>
@@ -150,6 +151,25 @@
       <!-- 空状态 -->
       <el-empty v-if="!loading && rows.length === 0" description="暂无记录" />
     </el-card>
+
+    <el-dialog
+      v-model="scoreDialogVisible"
+      title="选择扣分分值"
+      width="420px"
+      align-center
+      :append-to-body="true"
+    >
+      <div style="margin-bottom: 12px">目标用户：{{ scoreTarget?.username || "-" }}</div>
+      <el-radio-group v-model="selectedScore">
+        <el-radio-button :label="5">5 分</el-radio-button>
+        <el-radio-button :label="10">10 分</el-radio-button>
+        <el-radio-button :label="20">20 分</el-radio-button>
+      </el-radio-group>
+      <template #footer>
+        <el-button class="btn-cancel" @click="scoreDialogVisible = false">取消</el-button>
+        <el-button type="primary" class="btn-confirm" @click="confirmSubScore">确认扣分</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -174,6 +194,9 @@ const loading = ref(false);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+const scoreDialogVisible = ref(false);
+const selectedScore = ref<5 | 10 | 20>(5);
+const scoreTarget = ref<ScoreItem | null>(null);
 
 /** 搜索条件 */
 const filters = reactive({
@@ -200,9 +223,7 @@ const fetchData = async () => {
           : null,
     };
 
-    const res = await request.get("/teacher/getReservationNeedSub", {
-      params,
-    });
+    const res = await request.post("/admin/getReservationNeedSub", params);
 
     rows.value = res.data?.rows || [];
     total.value = res.data?.total || 0;
@@ -241,17 +262,53 @@ const handleSizeChange = (size: number) => {
 };
 
 /** 扣分 */
-const subScore = (row: ScoreItem) => {
-  ElMessageBox.confirm(`确认对【${row.username}】执行扣分操作？`, "提示", {
-    type: "warning",
-  }).then(async () => {
-    await request.post("/teacher/subScore", {
-      uid: row.uid,
-      rid: row.rid,
+const openScoreDialog = (row: ScoreItem) => {
+  scoreTarget.value = row;
+  selectedScore.value = 5;
+  scoreDialogVisible.value = true;
+};
+
+const confirmSubScore = async () => {
+  if (!scoreTarget.value) return;
+  try {
+    let operatorUid: number | null = null;
+    let operatorName = "管理员";
+    try {
+      const raw = localStorage.getItem("user");
+      if (raw) {
+        const operator = JSON.parse(raw);
+        operatorUid = Number(operator?.uid) || null;
+        operatorName = String(operator?.username || operatorName);
+      }
+    } catch (e) {
+      // Keep default operator info when local cache is unavailable.
+    }
+
+    await ElMessageBox.confirm(
+      `确认对【${scoreTarget.value.username}】扣 ${selectedScore.value} 分？`,
+      "提示",
+      { type: "warning" },
+    );
+    const res = await request.post("/admin/subScore", {
+      uid: scoreTarget.value.uid,
+      rid: scoreTarget.value.rid,
+      score: selectedScore.value,
+      operatorUid,
+      operatorName,
     });
+    if (!res || !res.data || Number(res.data.code) !== 200) {
+      throw new Error(res?.data?.msg || res?.data?.message || "扣分失败");
+    }
     ElMessage.success("扣分成功");
+    scoreDialogVisible.value = false;
+    scoreTarget.value = null;
     fetchData();
-  });
+  } catch (error) {
+    if (error !== "cancel" && error !== "close") {
+      const msg = error instanceof Error ? error.message : "扣分失败，请稍后重试";
+      ElMessage.error(msg || "扣分失败，请稍后重试");
+    }
+  }
 };
 
 /** 状态文字 */

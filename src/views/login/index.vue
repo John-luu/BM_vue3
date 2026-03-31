@@ -1,12 +1,19 @@
 <template>
   <div class="auth-container">
-    <div class="card">
-      <h2>登录</h2>
+    <section class="login-card">
+      <div class="card-head">
+        <h2>管理员登录</h2>
+        <span>Admin Sign In</span>
+      </div>
 
       <form @submit.prevent="handleSubmit">
         <div class="form-item">
-          <label>学号</label>
-          <input v-model="form.number" type="text" placeholder="请输入学号" />
+          <label>管理员账号</label>
+          <input
+            v-model="form.number"
+            type="text"
+            placeholder="请输入管理员账号"
+          />
         </div>
 
         <div class="form-item">
@@ -19,10 +26,10 @@
         </div>
 
         <button class="submit-btn" type="submit" :disabled="loading">
-          {{ loading ? "登录中..." : "登录" }}
+          {{ loading ? "登录中..." : "登录系统" }}
         </button>
       </form>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -30,7 +37,7 @@
 import { reactive, ref } from "vue";
 import request from "@/req";
 import { useRouter } from "vue-router";
-import { Toast } from "vant"; // 如果你用的是 vant
+import { ElMessage } from "element-plus";
 import "./style.scss";
 
 interface LoginForm {
@@ -46,14 +53,19 @@ const form = reactive<LoginForm>({
   password: "",
 });
 
+const isAdminUser = (user: unknown): user is { type: number } => {
+  if (!user || typeof user !== "object") return false;
+  return Number((user as { type?: unknown }).type) === 2;
+};
+
 const handleSubmit = async () => {
   if (!form.number || !form.password) {
-    Toast.fail("请填写完整信息");
+    ElMessage.error("请填写完整信息");
     return;
   }
 
   if (!/^\d+$/.test(form.number)) {
-    Toast.fail("学号必须是数字");
+    ElMessage.error("账号必须是数字");
     return;
   }
 
@@ -66,16 +78,21 @@ const handleSubmit = async () => {
     });
     const { data } = res;
     if (data.code === 200) {
-      Toast.success("登录成功");
+      if (!isAdminUser(data.user)) {
+        ElMessage.error("仅管理员可登录后台");
+        return;
+      }
+
+      ElMessage.success("登录成功");
 
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      router.replace("/student/forum");
+      router.replace("/admin");
     } else {
-      Toast.fail(data.message || "账号或密码错误");
+      ElMessage.error(data.message || "账号或密码错误");
     }
   } catch (err) {
-    Toast.fail("网络错误，请稍后重试");
+    ElMessage.error("网络错误，请稍后重试");
   } finally {
     loading.value = false;
   }

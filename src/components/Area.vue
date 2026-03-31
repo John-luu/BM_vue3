@@ -19,7 +19,7 @@
           v-model:visible="item.show"
           placement="top"
           trigger="manual"
-          popper-class="dark-popover"
+          :popper-class="props.blankMenuPopperClass || 'dark-popover'"
         >
           <slot name="blankMenu" />
           <template #reference>
@@ -61,7 +61,7 @@
           v-model:visible="item.show"
           placement="top"
           trigger="manual"
-          popper-class="dark-popover"
+          :popper-class="props.seatMenuPopperClass || 'dark-popover'"
         >
           <slot name="seatMenu" />
           <template #reference>
@@ -94,7 +94,7 @@ interface BatchPosition {
 interface SeatItem {
   row: number;
   column: number;
-  show: boolean;
+  show?: boolean;
   [key: string]: any;
 }
 
@@ -105,6 +105,8 @@ const props = defineProps<{
   rows: number;
   columns: number;
   batchSelected?: BatchPosition[];
+  blankMenuPopperClass?: string;
+  seatMenuPopperClass?: string;
 }>();
 
 const emit = defineEmits<{
@@ -266,6 +268,8 @@ const gridStyle = computed(() => ({
   position: absolute;
   top: 0;
   left: 0;
+  background-color: transparent;
+  background-image: none;
   pointer-events: none;
 }
 .overlay .item,

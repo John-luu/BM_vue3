@@ -58,6 +58,20 @@
   gap: 12px;
 }
 
+.pwd-reset-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pwd-input {
+  max-width: 170px;
+}
+
+.pwd-btn {
+  min-width: 56px;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .search-group {

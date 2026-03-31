@@ -1,0 +1,282 @@
+:root {
+  --hs-primary: #0c4a76;
+  --hs-primary-light: #1d6fa7;
+  --hs-accent: #d8aa4b;
+  --hs-bg: #eef3f9;
+  --hs-panel: #ffffff;
+  --hs-border: #dbe5f0;
+  --hs-text: #12304a;
+  --hs-subtext: #5f7388;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100vh;
+}
+
+body {
+  color: var(--hs-text);
+  background: radial-gradient(circle at 0% 0%, #f5f9ff 0, var(--hs-bg) 45%);
+  font-family: "HarmonyOS Sans SC", "Source Han Sans CN", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.hs-admin-layout {
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(12, 74, 118, 0.08), rgba(216, 170, 75, 0.06)),
+    var(--hs-bg);
+}
+
+.hs-admin-layout .aside {
+  background: linear-gradient(188deg, #083352 0%, #0d4d7a 52%, #0e588a 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+.hs-admin-layout .brand-badge {
+  color: #0d4d7a;
+  background: linear-gradient(145deg, #fdf6e3, #f4d690);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+}
+
+.hs-admin-layout .brand-text h1 {
+  color: #f8fbff;
+}
+
+.hs-admin-layout .brand-text p,
+.hs-admin-layout .aside-footer {
+  color: rgba(232, 242, 252, 0.72);
+}
+
+.hs-admin-layout .menu {
+  background: transparent;
+}
+
+.hs-admin-layout .menu .el-menu-item {
+  height: 44px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  color: rgba(242, 248, 255, 0.84);
+}
+
+.hs-admin-layout .menu .el-menu-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.hs-admin-layout .menu .el-menu-item.is-active {
+  color: #ffffff;
+  background: linear-gradient(90deg, rgba(216, 170, 75, 0.45), rgba(216, 170, 75, 0.16));
+  font-weight: 600;
+}
+
+.hs-admin-layout .top-header {
+  background: transparent;
+}
+
+.hs-admin-layout .header-title {
+  color: #103654;
+}
+
+.hs-admin-layout .header-subtitle {
+  color: #61778d;
+}
+
+.hs-admin-layout .content-shell {
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(206, 220, 235, 0.9);
+  box-shadow: 0 12px 28px rgba(28, 61, 98, 0.08);
+  backdrop-filter: blur(5px);
+}
+
+.hs-admin-layout .el-card {
+  border-radius: 14px;
+  border: 1px solid var(--hs-border);
+  box-shadow: 0 8px 20px rgba(20, 48, 74, 0.06);
+}
+
+.hs-admin-layout .el-card__header {
+  border-bottom: 1px solid #e6edf5;
+}
+
+.hs-admin-layout .el-card__body {
+  border-radius: 0 0 14px 14px;
+}
+
+.hs-admin-layout .el-table {
+  border-radius: 12px;
+  overflow: hidden;
+  --el-table-header-bg-color: #f2f7fc;
+  --el-table-row-hover-bg-color: #edf5ff;
+  --el-table-border-color: #e1eaf3;
+}
+
+.hs-admin-layout .el-table th.el-table__cell {
+  color: #2a435d;
+  font-weight: 600;
+  background: #f2f7fc !important;
+}
+
+.hs-admin-layout .el-table td.el-table__cell {
+  color: #3e556d;
+}
+
+.hs-admin-layout .el-button {
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  min-height: 34px;
+}
+
+.hs-admin-layout .el-button--primary {
+  --el-button-bg-color: var(--hs-primary);
+  --el-button-border-color: var(--hs-primary);
+  --el-button-hover-bg-color: var(--hs-primary-light);
+  --el-button-hover-border-color: var(--hs-primary-light);
+}
+
+.hs-admin-layout .el-button--success {
+  --el-button-bg-color: #157347;
+  --el-button-border-color: #157347;
+}
+
+.hs-admin-layout .el-button--warning {
+  --el-button-bg-color: #c28717;
+  --el-button-border-color: #c28717;
+}
+
+.hs-admin-layout .el-button--danger {
+  --el-button-bg-color: #b83e3e;
+  --el-button-border-color: #b83e3e;
+}
+
+.hs-admin-layout .el-button.is-text,
+.hs-admin-layout .el-button--text {
+  color: #0d4d7a;
+}
+
+.hs-admin-layout .el-button.is-plain {
+  border-color: #c9d9ea;
+}
+
+/* CRUD semantic button system */
+.hs-admin-layout .el-button.btn-search,
+.hs-admin-layout .el-button.btn-create,
+.hs-admin-layout .el-button.btn-confirm {
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 16px rgba(12, 74, 118, 0.16);
+}
+
+.hs-admin-layout .el-button.btn-search,
+.hs-admin-layout .el-button.btn-create {
+  background: linear-gradient(90deg, #0c4a76, #18679d);
+}
+
+.hs-admin-layout .el-button.btn-confirm {
+  background: linear-gradient(90deg, #0f5e92, #2182c3);
+}
+
+.hs-admin-layout .el-button.btn-search:hover,
+.hs-admin-layout .el-button.btn-create:hover,
+.hs-admin-layout .el-button.btn-confirm:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.hs-admin-layout .el-button.btn-reset,
+.hs-admin-layout .el-button.btn-view,
+.hs-admin-layout .el-button.btn-update,
+.hs-admin-layout .el-button.btn-cancel {
+  color: #2d4b64;
+  background: #f7fbff;
+  border: 1px solid #c9d9ea;
+  box-shadow: none;
+}
+
+.hs-admin-layout .el-button.btn-reset:hover,
+.hs-admin-layout .el-button.btn-view:hover,
+.hs-admin-layout .el-button.btn-update:hover,
+.hs-admin-layout .el-button.btn-cancel:hover {
+  color: #0d4d7a;
+  border-color: #9fb7cf;
+  background: #eff6fd;
+}
+
+.hs-admin-layout .el-button.btn-delete {
+  color: #9a2f2f;
+  background: #fff7f7;
+  border: 1px solid #e9b5b5;
+}
+
+.hs-admin-layout .el-button.btn-delete:hover {
+  color: #fff;
+  border-color: #b83e3e;
+  background: #b83e3e;
+}
+
+.hs-admin-layout .el-pagination.is-background .el-pager li {
+  border-radius: 8px;
+}
+
+.hs-admin-layout .el-dialog {
+  border-radius: 16px;
+}
+
+.hs-admin-layout .el-dialog__header {
+  border-bottom: 1px solid #e8eef6;
+  margin-right: 0;
+  padding-bottom: 16px;
+}
+
+.hs-admin-layout .el-dialog__footer {
+  border-top: 1px solid #e8eef6;
+  padding-top: 14px;
+}
+
+.hs-admin-layout .el-input__wrapper,
+.hs-admin-layout .el-textarea__inner,
+.hs-admin-layout .el-select__wrapper,
+.hs-admin-layout .el-date-editor.el-input,
+.hs-admin-layout .el-date-editor.el-input__wrapper {
+  border-radius: 10px;
+}
+
+.hs-admin-layout .announce-page,
+.hs-admin-layout .student-management,
+.hs-admin-layout .score-management,
+.hs-admin-layout .statistics-container,
+.hs-admin-layout .reservation-container,
+.hs-admin-layout .forum-management,
+.hs-admin-layout .root {
+  padding: 0 !important;
+  min-height: auto !important;
+  background: transparent !important;
+}
+
+.hs-admin-layout .statistics-container .main-title {
+  background: linear-gradient(90deg, #0d4d7a, #d8aa4b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hs-admin-layout .statistics-container .header-section {
+  background: linear-gradient(120deg, #f8fbff, #f3f8ff);
+}
+
+@media (max-width: 768px) {
+  .hs-admin-layout {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+}

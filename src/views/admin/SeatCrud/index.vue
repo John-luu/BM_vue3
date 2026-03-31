@@ -21,6 +21,7 @@
             <el-button
               size="small"
               plain
+              class="btn-create"
               :type="batchMode && batchType === 0 ? 'primary' : 'default'"
               @click="enterBatchMode(0)"
             >
@@ -30,6 +31,7 @@
             <el-button
               size="small"
               plain
+              class="btn-create"
               :type="batchMode && batchType === 1 ? 'primary' : 'default'"
               @click="enterBatchMode(1)"
             >
@@ -40,12 +42,13 @@
               v-if="batchMode"
               size="small"
               type="primary"
+              class="btn-confirm"
               @click="confirmBatchAdd"
             >
               ✅ 确认（{{ batchSelected.length }}）
             </el-button>
 
-            <el-button v-if="batchMode" size="small" @click="exitBatchMode">
+            <el-button v-if="batchMode" size="small" class="btn-cancel" @click="exitBatchMode">
               取消
             </el-button>
           </div>
@@ -88,7 +91,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Delete } from "@element-plus/icons-vue";
 
@@ -142,10 +145,6 @@ const room = ref();
 const seatClick = (index: number) => {
   const seat = seatRows.value[index];
   if (!seat) return;
-  if (seat.state === 1 || seat.state === 2) {
-    seat.show = false;
-    return;
-  }
   currentSid.value = seat.sid;
 };
 

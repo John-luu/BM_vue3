@@ -45,9 +45,9 @@
         <el-table-column label="操作" width="180" align="center" fixed="right">
           <template #default="{ row, $index }">
             <el-button
-              type="text"
+              plain
               size="small"
-              class="action-primary"
+              class="action-primary btn-view"
               @click="openDetail(row)"
             >
               查看
@@ -55,9 +55,9 @@
 
             <el-button
               v-if="row.status === 1"
-              type="text"
+              plain
               size="small"
-              class="action-danger"
+              class="action-danger btn-delete"
               @click="offlineArticle($index, row)"
             >
               下架
@@ -65,9 +65,9 @@
 
             <el-button
               v-else
-              type="text"
+              plain
               size="small"
-              class="action-success"
+              class="action-success btn-update"
               @click="restoreArticle(row)"
             >
               恢复
@@ -78,11 +78,45 @@
     </el-card>
 
     <!-- 帖子详情 -->
-    <el-dialog title="帖子详情" v-model:visible="dialogVisible" width="600px">
-      <h3 class="detail-title">{{ currentRow.title }}</h3>
-      <p class="detail-content">{{ currentRow.content }}</p>
+    <el-dialog 
+      title="帖子详情" 
+      v-model="dialogVisible"
+      width="700px"
+      align-center
+      :append-to-body="true"
+    >
+      <div class="detail-container">
+        <div class="article-section">
+          <h3 class="detail-title">{{ currentRow.title }}</h3>
+          <div class="article-meta">
+            <span class="author">发布者：{{ currentRow.username }}</span>
+            <span class="time">发布时间：{{ formatTime(currentRow.datetime) }}</span>
+          </div>
+          <p class="detail-content">{{ currentRow.content }}</p>
+        </div>
+
+        <el-divider />
+
+        <div class="comments-section">
+          <h4 class="comments-title">评论（{{ comments.length }}）</h4>
+          <el-empty
+            v-if="!commentsLoading && comments.length === 0"
+            description="暂无评论"
+          ></el-empty>
+          <el-skeleton v-if="commentsLoading" :rows="3" animated />
+          <div v-else class="comments-list">
+            <div v-for="comment in comments" :key="comment.cid" class="comment-item">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.username }}</span>
+                <span class="comment-time">{{ formatTime(comment.datetime) }}</span>
+              </div>
+              <p class="comment-content">{{ comment.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <template #footer>
-        <el-button @click="dialogVisible = false">关闭</el-button>
+        <el-button class="btn-cancel" @click="dialogVisible = false">关闭</el-button>
       </template>
     </el-dialog>
   </div>
@@ -98,7 +132,18 @@ interface Article {
   title: string;
   content: string;
   datetime: string;
+  uid: number;
+  username: string;
   status: number; // 1: 正常, 0: 下架
+}
+
+interface Comment {
+  cid: number;
+  content: string;
+  datetime: number;
+  uid: number;
+  username: string;
+  aid: number;
 }
 
 export default defineComponent({
@@ -111,11 +156,16 @@ export default defineComponent({
       title: "",
       content: "",
       datetime: "",
+      uid: 0,
+      username: "",
       status: 1,
     });
+    const comments = ref<Comment[]>([]);
+    const commentsLoading = ref(false);
 
-    const formatTime = (datetime: string) => {
-      const date = new Date(datetime);
+    const formatTime = (datetime: string | number) => {
+      const timestamp = typeof datetime === "string" ? new Date(datetime).getTime() : datetime;
+      const date = new Date(timestamp);
       return date.toLocaleString();
     };
 
@@ -131,6 +181,20 @@ export default defineComponent({
     const openDetail = (row: Article) => {
       currentRow.value = row;
       dialogVisible.value = true;
+      loadComments(row.id);
+    };
+
+    const loadComments = async (articleId: number) => {
+      try {
+        commentsLoading.value = true;
+        const res = await request.post("/forum/getComment", { aid: articleId });
+        comments.value = res.data.rows || [];
+      } catch (error) {
+        console.error("加载评论失败:", error);
+        comments.value = [];
+      } finally {
+        commentsLoading.value = false;
+      }
     };
 
     const offlineArticle = async (_index: number, row: Article) => {
@@ -167,8 +231,11 @@ export default defineComponent({
       rows,
       dialogVisible,
       currentRow,
+      comments,
+      commentsLoading,
       formatTime,
       openDetail,
+      loadComments,
       offlineArticle,
       restoreArticle,
     };

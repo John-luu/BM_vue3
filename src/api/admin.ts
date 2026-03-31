@@ -75,15 +75,7 @@ export interface UserItem {
   createTime?: number;
 }
 
-export interface TeacherItem {
-  tid: number;
-  number: string;
-  username: string;
-  avatar?: string;
-  gender?: string;
-  college?: string;
-  createTime?: number;
-}
+
 
 export interface StatisticsData {
   userCounter: {
@@ -182,24 +174,7 @@ export const adminApi = {
       params,
     }),
 
-  /* ===================== 教师管理 ===================== */
 
-  /**
-   * 搜索教师（分页）
-   */
-  searchTeacher: (params: UserSearchParams) =>
-    request.get<ApiResponse<PaginatedResponse<TeacherItem>>>(
-      "/admin/searchTeacher",
-      {
-        params,
-      },
-    ),
-
-  /**
-   * 获取所有教师（旧接口，兼容）
-   */
-  getTeacher: () =>
-    request.get<ApiResponse<{ rows: TeacherItem[] }>>("/admin/getTeacher"),
 
   /* ===================== 统计分析 ===================== */
 

@@ -40,10 +40,7 @@ const routes = [
         path: "student",
         component: () => import("../views/admin/StudentManagement/index.vue"),
       },
-      {
-        path: "teacher",
-        component: () => import("../views/admin/TeacherManagement/index.vue"),
-      },
+
       {
         path: "statistics",
         component: () => import("../views/admin/Statistics/index.vue"),
@@ -130,6 +127,32 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(), // 等价于 Vue2 的 mode: 'history'
   routes,
+});
+
+router.beforeEach((to, _from, next) => {
+  if (!to.path.startsWith("/admin")) {
+    next();
+    return;
+  }
+
+  const userStr = localStorage.getItem("user");
+  if (!userStr) {
+    next("/login");
+    return;
+  }
+
+  try {
+    const user = JSON.parse(userStr) as { type?: unknown };
+    if (Number(user.type) === 2) {
+      next();
+      return;
+    }
+  } catch (error) {
+    console.warn("用户信息解析失败", error);
+  }
+
+  localStorage.removeItem("user");
+  next("/login");
 });
 
 export default router;

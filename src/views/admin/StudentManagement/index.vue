@@ -35,18 +35,18 @@
                 type="primary"
                 size="default"
                 @click="handleSearch"
-                class="search-btn"
+                class="search-btn btn-search"
               >
                 搜索
               </el-button>
-              <el-button size="default" @click="resetSearch" class="reset-btn">
+              <el-button size="default" @click="resetSearch" class="reset-btn btn-reset">
                 重置
               </el-button>
               <el-button
                 type="success"
                 size="default"
                 @click="openAddDialog"
-                class="add-btn"
+                class="add-btn btn-create"
               >
                 新增学生
               </el-button>
@@ -54,6 +54,7 @@
                 type="warning"
                 size="default"
                 @click="openImportDialog"
+                class="btn-create"
               >
                 批量导入
               </el-button>
@@ -72,15 +73,18 @@
           <el-tag :type="scoreTagType(row.score)">{{ row.score }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作">
+      <el-table-column label="操作" min-width="260">
         <template #default="{ row }">
-          <el-input
-            v-model="row.newPwd"
-            size="small"
-            placeholder="新密码"
-            show-password
-          />
-          <el-button type="text" @click="remarkPwd(row)">重置</el-button>
+          <div class="pwd-reset-line">
+            <el-input
+              v-model="row.newPwd"
+              size="small"
+              placeholder="新密码"
+              show-password
+              class="pwd-input"
+            />
+            <el-button plain size="small" class="btn-update pwd-btn" @click="remarkPwd(row)">重置</el-button>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -107,6 +111,7 @@
       width="500px"
       :close-on-click-modal="false"
       align-center
+      :append-to-body="true"
     >
       <el-form
         :model="form"
@@ -144,8 +149,8 @@
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="addVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitAdd">确定</el-button>
+          <el-button class="btn-cancel" @click="addVisible = false">取消</el-button>
+          <el-button type="primary" class="btn-confirm" @click="submitAdd">确定</el-button>
         </span>
       </template>
     </el-dialog>

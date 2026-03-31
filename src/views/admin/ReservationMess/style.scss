@@ -1,6 +1,82 @@
 .reservation-container {
   padding: 16px;
 }
+
+.day-detail-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid #e4ecf5;
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.day-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a3b58;
+}
+
+.day-tip {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6d8093;
+}
+
+.day-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.day-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.day-summary-item {
+  border: 1px solid #e3ebf5;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  padding: 10px 12px;
+}
+
+.summary-label {
+  color: #6e8296;
+  font-size: 12px;
+}
+
+.summary-value {
+  margin-top: 4px;
+  color: #173956;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.summary-value.emphasis {
+  color: #0e5a8f;
+}
+
+.summary-value.warning {
+  color: #b56400;
+}
+
+.day-table {
+  margin-top: 6px;
+}
+
+.day-footnote {
+  margin-top: 10px;
+  color: #6d8093;
+  font-size: 12px;
+}
 /* 表头整体 */
 .el-table__header-wrapper {
   background-color: #f5f7fa;
@@ -68,4 +144,20 @@
   display: flex;
   justify-content: flex-end;
   padding: 16px 8px 0;
+}
+
+@media (max-width: 900px) {
+  .day-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .day-filter {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .day-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

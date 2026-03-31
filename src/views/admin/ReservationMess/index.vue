@@ -1,12 +1,55 @@
 <template>
   <div class="reservation-container">
+    <el-card class="day-detail-card" shadow="never">
+      <template #header>
+        <div class="day-header">
+          <div>
+            <div class="day-title">按天预约与签到明细</div>
+            <div class="day-tip">未选日期显示全部记录；选择日期后，统计与下方表格同步筛选</div>
+          </div>
+          <div class="day-filter">
+            <el-date-picker
+              v-model="dayDate"
+              type="date"
+              value-format="YYYY-MM-DD"
+              clearable
+              placeholder="选择日期"
+            />
+            <el-button class="btn-search" @click="handleDayQuery">查询</el-button>
+            <el-button @click="handleDayReset">重置</el-button>
+          </div>
+        </div>
+      </template>
+
+      <div class="day-summary-grid">
+        <div class="day-summary-item">
+          <div class="summary-label">预约总量</div>
+          <div class="summary-value">{{ daySummary.reserveTotal }}</div>
+        </div>
+        <div class="day-summary-item">
+          <div class="summary-label">签到人数</div>
+          <div class="summary-value emphasis">{{ daySummary.signTotal }}</div>
+        </div>
+        <div class="day-summary-item">
+          <div class="summary-label">正常结束</div>
+          <div class="summary-value">{{ daySummary.finishTotal }}</div>
+        </div>
+        <div class="day-summary-item">
+          <div class="summary-label">异常记录</div>
+          <div class="summary-value warning">{{ daySummary.violateTotal }}</div>
+        </div>
+      </div>
+      <div class="day-footnote">
+        当前筛选：{{ dayDate ? dayDate : "全部日期" }}（状态说明：未签到/违规离座计入异常）
+      </div>
+    </el-card>
+
     <el-card class="table-card" shadow="never">
       <el-table
         :data="rows"
         stripe
         border
         highlight-current-row
-        @row-click="onRowClick"
         v-loading="loading"
         style="width: 100%"
       >
@@ -80,7 +123,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import { Location, Calendar } from "@element-plus/icons-vue";
 import request from "@/req";
 import "./style.scss";
@@ -95,18 +137,27 @@ interface ReservationItem {
   endTime: string;
 }
 
-const router = useRouter();
+interface DaySummary {
+  reserveTotal: number;
+  signTotal: number;
+  finishTotal: number;
+  leaveTotal: number;
+  violateTotal: number;
+}
 const rows = ref<ReservationItem[]>([]);
 const loading = ref(false);
 const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
+const dayDate = ref<string>("");
+const daySummary = ref<DaySummary>({
+  reserveTotal: 0,
+  signTotal: 0,
+  finishTotal: 0,
+  leaveTotal: 0,
+  violateTotal: 0,
+});
 
-/** 行点击 */
-const onRowClick = (row: ReservationItem) => {
-  localStorage.setItem("student", JSON.stringify(row));
-  router.push("/LookStudentMess");
-};
 const indexMethod = (index: number) => {
   return (currentPage.value - 1) * pageSize.value + index + 1;
 };
@@ -119,7 +170,7 @@ const getStateText = (state: number): string => {
     2: "未签到",
     3: "暂离",
     4: "超时",
-    5: "完成",
+    [-1]: "使用完成",
   };
   return map[state] || "未知";
 };
@@ -139,7 +190,7 @@ const getTagType = (
       return "info";
     case 4:
       return "warning";
-    case 5:
+    case -1:
       return undefined;
     default:
       return undefined;
@@ -166,17 +217,35 @@ const formatTimeRange = (start: string, end: string): string => {
 const fetchData = async () => {
   loading.value = true;
 
-  const res = await request.get("/teacher/getReservation", {
-    params: {
-      page: currentPage.value,
-      pageSize: pageSize.value,
-    },
+  const res = await request.post("/admin/getReservation", {
+    page: currentPage.value,
+    pageSize: pageSize.value,
+    date: dayDate.value || undefined,
   });
 
   rows.value = res.data.rows || [];
   total.value = res.data.total || 0;
+    const summary = res.data.summary || {};
+    daySummary.value = {
+      reserveTotal: Number(summary.reserveTotal || 0),
+      signTotal: Number(summary.signTotal || 0),
+      finishTotal: Number(summary.finishTotal || 0),
+      leaveTotal: Number(summary.leaveTotal || 0),
+      violateTotal: Number(summary.violateTotal || 0),
+    };
 
   loading.value = false;
+};
+
+const handleDayQuery = () => {
+  currentPage.value = 1;
+  fetchData();
+};
+
+const handleDayReset = () => {
+  dayDate.value = "";
+  currentPage.value = 1;
+  fetchData();
 };
 const handlePageChange = (page: number) => {
   currentPage.value = page;

@@ -3,7 +3,7 @@
     <!-- 顶部操作栏 -->
     <div class="page-header">
       <div class="title">📢 公告管理</div>
-      <el-button type="primary" icon="el-icon-plus" @click="openDialog">
+      <el-button type="primary" class="btn-create" icon="el-icon-plus" @click="openDialog">
         新增公告
       </el-button>
     </div>
@@ -38,6 +38,7 @@
           <template #default="{ row, index }">
             <el-button
               type="danger"
+              class="btn-delete"
               size="small"
               plain
               @click="handleDelete(index, row)"
@@ -54,6 +55,8 @@
       title="新增公告"
       v-model="dialogVisible"
       width="480px"
+      align-center
+      :append-to-body="true"
       @close="resetForm"
     >
       <el-form :model="form" label-width="60px">
@@ -67,8 +70,8 @@
       </el-form>
 
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitAnnounce">发布</el-button>
+        <el-button class="btn-cancel" @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" class="btn-confirm" @click="submitAnnounce">发布</el-button>
       </template>
     </el-dialog>
   </div>

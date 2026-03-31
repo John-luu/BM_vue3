@@ -1,65 +1,140 @@
 .auth-container {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+  padding: clamp(14px, 3vw, 28px);
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(120deg, rgba(7, 27, 43, 0.42), rgba(8, 38, 61, 0.28)),
+    url("/韩师/图片二.jpg") center center / cover no-repeat;
 }
 
-.card {
-  width: 320px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+.auth-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(198, 138, 88, 0.18), transparent 40%),
+    radial-gradient(circle at 82% 78%, rgba(120, 170, 208, 0.18), transparent 42%);
 }
 
-.card h2 {
-  text-align: center;
+.login-card {
+  width: min(400px, 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 28px;
+  border-radius: 18px;
+  border: 1px solid rgba(212, 228, 242, 0.42);
+  background: linear-gradient(180deg, rgba(244, 250, 255, 0.66), rgba(236, 245, 252, 0.58));
+  backdrop-filter: blur(7px);
+  box-shadow:
+    0 12px 24px rgba(6, 34, 55, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.card-head {
   margin-bottom: 20px;
 }
 
+.card-head h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #0d3554;
+}
+
+.card-head span {
+  margin-top: 6px;
+  display: inline-block;
+  font-size: 12px;
+  letter-spacing: 1.1px;
+  color: #5f7690;
+}
+
 .form-item {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .form-item label {
   display: block;
-  font-size: 14px;
   margin-bottom: 6px;
+  color: #21435d;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .form-item input {
   width: 100%;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #bccde0;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.22s ease;
+  font-size: 14px;
+  color: #153a58;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.form-item input:focus {
+  border-color: #0d4d7a;
+  box-shadow: 0 0 0 4px rgba(13, 77, 122, 0.14);
 }
 
 .submit-btn {
   width: 100%;
-  height: 38px;
+  height: 44px;
   border: none;
-  border-radius: 6px;
-  background: #667eea;
-  color: #fff;
+  border-radius: 11px;
   font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #f7fbff;
   cursor: pointer;
+  background: linear-gradient(90deg, #0b4a76, #18679d);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  box-shadow: 0 12px 24px rgba(12, 74, 118, 0.24);
 }
 
 .submit-btn:hover {
-  opacity: 0.9;
+  transform: translateY(-1px);
+  filter: brightness(1.04);
 }
 
-.switch {
-  text-align: center;
-  margin-top: 14px;
-  font-size: 14px;
+.submit-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+  opacity: 0.74;
 }
 
-.switch span {
-  color: #667eea;
-  cursor: pointer;
-  margin-left: 6px;
+@media (max-width: 960px) {
+  .auth-container {
+    padding: 14px;
+    justify-content: center;
+  }
+
+  .login-card {
+    width: min(410px, 100%);
+    padding: 28px 22px;
+  }
+
+  .card-head h2 {
+    font-size: 21px;
+  }
+
+  .form-item label {
+    font-size: 14px;
+  }
+
+  .submit-btn {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-head h2 {
+    font-size: 25px;
+  }
 }
