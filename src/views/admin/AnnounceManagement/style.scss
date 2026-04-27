@@ -36,3 +36,44 @@
 .table-row:hover {
   background: #f0f7ff !important;
 }
+
+.btn-view {
+  margin-right: 8px;
+}
+
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detail-item {
+  background: #f8fbff;
+  border: 1px solid #e6eef7;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.detail-label {
+  font-size: 13px;
+  color: #6b7785;
+  margin-bottom: 6px;
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.detail-time {
+  font-size: 14px;
+  color: #425466;
+}
+
+.detail-content {
+  font-size: 14px;
+  color: #2d3a4b;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}

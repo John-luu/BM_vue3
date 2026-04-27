@@ -34,8 +34,17 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row, index }">
+            <el-button
+              type="primary"
+              class="btn-view"
+              size="small"
+              plain
+              @click="openDetailDialog(row)"
+            >
+              查看
+            </el-button>
             <el-button
               type="danger"
               class="btn-delete"
@@ -74,6 +83,32 @@
         <el-button type="primary" class="btn-confirm" @click="submitAnnounce">发布</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog
+      title="公告详情"
+      v-model="detailDialogVisible"
+      width="560px"
+      align-center
+      :append-to-body="true"
+    >
+      <div class="detail-body">
+        <div class="detail-item">
+          <div class="detail-label">标题</div>
+          <div class="detail-title">{{ currentAnnounce.title || '-' }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">发布时间</div>
+          <div class="detail-time">{{ currentAnnounce.datetime ? formatTime(currentAnnounce.datetime) : '-' }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">内容</div>
+          <div class="detail-content">{{ currentAnnounce.content || '-' }}</div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button class="btn-cancel" @click="detailDialogVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -99,9 +134,16 @@ export default defineComponent({
   setup() {
     const rows = ref<AnnounceRow[]>([]);
     const dialogVisible = ref(false);
+    const detailDialogVisible = ref(false);
     const form = ref<AnnounceForm>({
       title: "",
       content: "",
+    });
+    const currentAnnounce = ref<AnnounceRow>({
+      id: 0,
+      title: "",
+      content: "",
+      datetime: 0,
     });
 
     // 打开弹窗
@@ -120,6 +162,11 @@ export default defineComponent({
       request.get("/admin/getAnnounce").then((res: any) => {
         rows.value = res.data.rows;
       });
+    };
+
+    const openDetailDialog = (row: AnnounceRow) => {
+      currentAnnounce.value = { ...row };
+      detailDialogVisible.value = true;
     };
 
     const handleDelete = (index: number, row: AnnounceRow) => {
@@ -181,8 +228,11 @@ export default defineComponent({
       resetForm,
       openDialog,
       dialogVisible,
+      detailDialogVisible,
       form,
+      currentAnnounce,
       loadData,
+      openDetailDialog,
       handleDelete,
       submitAnnounce,
       formatTime,
